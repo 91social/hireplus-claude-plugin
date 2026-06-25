@@ -1,0 +1,14 @@
+{
+  "name": "91social",
+  "owner": {
+    "name": "91social",
+    "url": "https://github.com/91social"
+  },
+  "plugins": [
+    {
+      "name": "hireplus",
+      "source": "./plugins/hireplus",
+      "description": "Connect Claude to the Hyrewyse / HirePlus recruitment platform via its MCP server: create job descriptions, add and score candidate resumes, and generate interview questions. Bundles the hyrewyse-recruiting skill."
+    }
+  ]
+}

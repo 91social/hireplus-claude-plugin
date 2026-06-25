@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "hyrewyse": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://hireplus-5ie3l.ondigitalocean.app/mcp",
+        "--static-oauth-client-info",
+        "{\"client_id\":\"claude-mcp-remote\"}",
+        "--port",
+        "3334"
+      ]
+    }
+  }
+}
