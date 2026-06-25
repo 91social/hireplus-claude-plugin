@@ -1,16 +1,12 @@
 {
   "mcpServers": {
     "hyrewyse": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://hireplus-5ie3l.ondigitalocean.app/mcp",
-        "--static-oauth-client-info",
-        "{\"client_id\":\"claude-mcp-remote\"}",
-        "--port",
-        "3334"
-      ]
+      "type": "http",
+      "url": "https://hireplus-5ie3l.ondigitalocean.app/mcp",
+      "oauth": {
+        "clientId": "hyrewyse-mcp",
+        "callbackPort": 6274
+      }
     }
   }
 }
