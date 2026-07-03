@@ -2,7 +2,7 @@
   "name": "hireplus",
   "displayName": "HirePlus Recruiting",
   "version": "1.0.0",
-  "description": "Connect Claude to the Hyrewyse / HirePlus recruitment platform: create jobs, add and score candidate resumes against a job, and generate interview questions — through the platform's OAuth-protected MCP server. Bundles the hyrewyse-recruiting skill that teaches Claude how to use the tools.",
+  "description": "Connect Claude to the Hyrewyse / HirePlus recruitment platform: create jobs, add and score candidate resumes against a job, generate screening and interview questions, and run a silent interview co-pilot — through the platform's OAuth-protected MCP server. Bundles the hyrewyse-recruiting, generate-screening-questions, generate-interview-questions, and interview-oncall skills.",
   "author": {
     "name": "91social",
     "url": "https://github.com/91social"

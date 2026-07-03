@@ -194,6 +194,83 @@ exist under the job (create it first with `create_resume` or `upload_resume`).
 
 ---
 
+## get_screening_questions / get_interview_questions  (scope: `mcp:questions.read`)
+
+Fetch the stored question sets for a candidate under a job — `get_screening_questions` returns
+`question_type: "screening"` sets, `get_interview_questions` returns `"interview1"` sets. Use them
+to review previously generated questions before generating new ones, or as the scoring rubric when
+analyzing an interview. Same arguments for both:
+
+**Arguments**
+
+| Field | Type | Req | Notes |
+|-------|------|-----|-------|
+| `jd_id` | string | ✅ | Existing job. |
+| `resume_id` | string | ✅ | Existing candidate under that job. |
+| `page` / `per_page` | number | — | per_page 1–100 (default 20). |
+
+**Returns** a paginated `{ items, total, … }` where each item is one stored set:
+
+```json
+{
+  "id": "<question_id>",
+  "jd_id": "3f2a…",
+  "resume_id": "9b71…",
+  "question_type": "screening",
+  "questions_generated": {
+    "questions": [
+      { "question": "…", "key_points": ["…", "…"] }
+    ]
+  },
+  "created_at": "…"
+}
+```
+
+`questions_generated` is `null` for a set whose async server-side generation hasn't finished yet.
+Sets are ordered newest first.
+
+---
+
+## generate_screening_questions  (scope: `mcp:questions.write`)
+
+Ask the **platform** to generate screening questions with its own AI workflow and prompts —
+async, like `upload_resume`. Contrast with `add_interview_questions`, where YOU author the
+questions.
+
+**Arguments**
+
+| Field | Type | Req | Notes |
+|-------|------|-----|-------|
+| `jd_id` | string | ✅ | Existing job. |
+| `resume_id` | string | ✅ | Existing candidate under that job. |
+| `num_questions` | number | — | 1–30, default 10. |
+| `extra_topics` | string | — | Additional topics to cover, e.g. `"notice period, relocation"`. |
+
+**Returns:** `{ "question_id": "<uuid>", "run_id": "<uuid>", "status": "processing" }`.
+Poll `get_workflow_status` with `run_id`; when `COMPLETED`, read the questions with
+`get_screening_questions`. Missing job/resume → `{ "question_id": null, "status": "error", "message": "…" }`.
+
+---
+
+## generate_interview_questions  (scope: `mcp:questions.write`)
+
+Ask the **platform** to generate technical Level-1 interview questions with its own AI workflow
+and prompts — async. Same shape as `generate_screening_questions` but without `extra_topics`:
+
+**Arguments**
+
+| Field | Type | Req | Notes |
+|-------|------|-----|-------|
+| `jd_id` | string | ✅ | Existing job. |
+| `resume_id` | string | ✅ | Existing candidate under that job. |
+| `num_questions` | number | — | 1–30, default 10. |
+
+**Returns:** `{ "question_id": "<uuid>", "run_id": "<uuid>", "status": "processing" }`.
+Poll `get_workflow_status` with `run_id`; when `COMPLETED`, read the questions with
+`get_interview_questions`.
+
+---
+
 ## upload_resume  (scope: `mcp:resumes.write`)
 
 Raw-file path. Use **only** when you cannot read the file yourself. The server extracts and scores
@@ -260,5 +337,6 @@ Returns candidates **with evaluation fields merged** (`overall_score`, `role_fit
 | `mcp:jobs.write` | `create_job` |
 | `mcp:resumes.read` | `list_resumes` |
 | `mcp:resumes.write` | `create_resume`, `upload_resume` |
-| `mcp:questions.write` | `add_interview_questions` |
+| `mcp:questions.read` | `get_screening_questions`, `get_interview_questions` |
+| `mcp:questions.write` | `add_interview_questions`, `generate_screening_questions`, `generate_interview_questions` |
 | `mcp:workflows.read` | `get_workflow_status` |

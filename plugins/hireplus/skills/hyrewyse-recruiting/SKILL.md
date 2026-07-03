@@ -55,7 +55,9 @@ Reads:
 | `list_jobs` | `mcp:jobs.read` | List JDs, with filters (`company`, `job_title`, `location`, `status`) + pagination. |
 | `get_job` | `mcp:jobs.read` | Fetch one JD (with its `extracted_info`) by `jd_id`. |
 | `list_resumes` | `mcp:resumes.read` | List candidates for a JD (with scores), filter by `candidate_name`, `email`, `hiring_status`. |
-| `get_workflow_status` | `mcp:workflows.read` | Status of an async run (`run_id`) started by `upload_resume`. |
+| `get_screening_questions` | `mcp:questions.read` | Fetch stored screening questions (with `key_points`) for a candidate. |
+| `get_interview_questions` | `mcp:questions.read` | Fetch stored interview (level 1) questions (with `key_points`) for a candidate. |
+| `get_workflow_status` | `mcp:workflows.read` | Status of an async run (`run_id`) started by `upload_resume` or the `generate_*_questions` tools. |
 
 Writes — client-side intelligence (you supply structured data):
 
@@ -65,11 +67,13 @@ Writes — client-side intelligence (you supply structured data):
 | `create_resume` | `mcp:resumes.write` | `jd_id` + `raw_text` + `extracted_info` (parsed resume) + `evaluation` (your scoring). |
 | `add_interview_questions` | `mcp:questions.write` | `jd_id` + `resume_id` + `questions[]` (each with `key_points`). |
 
-Writes — raw-file path (server does the work):
+Writes — server-side intelligence (the platform's own AI does the work, async):
 
 | Tool | Scope | You supply |
 |------|-------|------------|
 | `upload_resume` | `mcp:resumes.write` | `jd_id` + `filename` + `content_base64`. Returns `status: "processing"`. |
+| `generate_screening_questions` | `mcp:questions.write` | `jd_id` + `resume_id` (+ `num_questions`, `extra_topics`). Returns `run_id` to poll. |
+| `generate_interview_questions` | `mcp:questions.write` | `jd_id` + `resume_id` (+ `num_questions`). Returns `run_id` to poll. |
 
 Full field-by-field schemas and copy-paste JSON examples are in
 [references/tool-reference.md](references/tool-reference.md). Read it before your first write call.
@@ -87,9 +91,13 @@ create_job ──► (per candidate) create_resume ──► add_interview_quest
 2. **Add each candidate.** Read the resume. Extract the candidate fields. Then **evaluate the
    candidate against the JD** — produce the 0–100 scores, `skills_matched` / `key_skills_missing`,
    a `final_recommendation`, and a short `evaluation_summary`. Call `create_resume`. Keep `resume_id`.
-3. **Generate interview questions.** Using the JD + the candidate's background, write targeted
-   questions (each with `key_points` an interviewer should listen for). Call
-   `add_interview_questions` with `question_type` `"screening"` or `"interview1"`.
+3. **Generate questions.** Two ways: let the platform generate them (`generate_screening_questions`
+   / `generate_interview_questions`, async — poll `get_workflow_status`), or author them yourself
+   and store with `add_interview_questions` (`question_type` `"screening"` or `"interview1"`).
+   Before writing, check `get_screening_questions` / `get_interview_questions` so you don't
+   duplicate an existing set. The dedicated `generate-screening-questions` and
+   `generate-interview-questions` skills carry the full playbooks; `interview-oncall` uses the
+   stored questions as a live-interview rubric.
 
 ## Doing the extraction & scoring well
 
@@ -131,8 +139,8 @@ The Hyrewyse MCP server is an OAuth 2.1 resource server. Connect it in your MCP 
 your Hyrewyse email + password on the consent page. Request only the scopes you need:
 
 - Browsing only → `mcp:jobs.read mcp:resumes.read`
-- Full recruiting flow → `mcp:jobs.read mcp:jobs.write mcp:resumes.read mcp:resumes.write mcp:questions.write`
-- Polling uploads → add `mcp:workflows.read`
+- Full recruiting flow → `mcp:jobs.read mcp:jobs.write mcp:resumes.read mcp:resumes.write mcp:questions.read mcp:questions.write mcp:workflows.read`
+- (`mcp:workflows.read` is needed to poll `upload_resume` and `generate_*_questions` runs)
 
 A `403 insufficient_scope` means your token lacks the scope for that tool — re-authorize with the
 scope named in the `WWW-Authenticate` header. A `401` means the access token is missing/expired —

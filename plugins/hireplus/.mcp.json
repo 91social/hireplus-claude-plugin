@@ -2,11 +2,7 @@
   "mcpServers": {
     "hyrewyse": {
       "type": "http",
-      "url": "https://hireplus-5ie3l.ondigitalocean.app/mcp",
-      "oauth": {
-        "clientId": "hyrewyse-mcp",
-        "callbackPort": 6274
-      }
+      "url": "https://hireplus-5ie3l.ondigitalocean.app/mcp"
     }
   }
 }
