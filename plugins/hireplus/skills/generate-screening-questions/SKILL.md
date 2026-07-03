@@ -4,7 +4,7 @@ description: Generate screening questions for a candidate on Hyrewyse. Use when 
 license: MIT
 metadata:
   author: 91social
-  version: "1.1.0"
+  version: "1.0.0"
 ---
 
 # Generate Screening Questions

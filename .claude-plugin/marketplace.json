@@ -8,7 +8,7 @@
     {
       "name": "hireplus",
       "source": "./plugins/hireplus",
-      "description": "Connect Claude to the Hyrewyse / HirePlus recruitment platform via its MCP server: create job descriptions, add and score candidate resumes, and generate interview questions. Bundles the hyrewyse-recruiting skill."
+      "description": "Connect Claude to the Hyrewyse / HirePlus recruitment platform via its MCP server: create job descriptions, add and score candidate resumes, generate and list screening/interview questions, and run a silent interview co-pilot. Bundles the hyrewyse-recruiting, generate-screening-questions, generate-interview-questions, and interview-oncall skills plus list commands."
     }
   ]
 }
