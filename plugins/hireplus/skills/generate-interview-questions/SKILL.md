@@ -1,6 +1,6 @@
 ---
 name: generate-interview-questions
-description: Generate round-1 interview questions for a candidate on Hyrewyse. Use when the user asks to "generate interview questions", "prepare the technical interview", "what should I ask this candidate in the interview", or wants deep technical/behavioral questions tailored to a specific candidate and job. Supports the platform's own AI generation (generate_interview_questions) or Claude-authored questions.
+description: Generate round-1 interview questions for a candidate on Hyrewyse. Use when the user asks to "generate interview questions", "prepare the technical interview", "what should I ask this candidate in the interview", or wants deep technical/behavioral questions tailored to a specific candidate and job. Generation always uses the platform's AI (generate_interview_questions); Claude authors questions only when the user explicitly asks, and saving over an existing set prompts replace-or-merge.
 license: MIT
 metadata:
   author: 91social
@@ -20,21 +20,43 @@ For the quick recruiter phone-screen instead, use the `generate-screening-questi
      `candidate_name`). Ambiguous matches → show them and ask.
 2. **Check prior rounds:**
    - `get_screening_questions` — don't re-ask what the screen already covered; build on it.
-   - `get_interview_questions` — if a set already exists, show it and confirm before writing
-     another.
-3. **Pick the generation path:**
+   - `get_interview_questions` — if a set already exists, show it before doing anything else.
+     For the platform path, confirm the user wants a fresh set generated; for a set you are
+     about to store yourself, follow
+     [Saving when a set already exists](#saving-when-a-set-already-exists).
+3. **Pick the generation path.** The platform tool is the ONLY default. Never author questions
+   yourself unless the user explicitly asks you to (e.g. "you write them", "don't use the
+   platform's generator", "I want Claude-written questions"). Wanting "tailored" or "custom"
+   questions is NOT an explicit ask.
 
    | Path | When | How |
    |------|------|-----|
-   | **Platform (default)** | User just wants interview questions | `generate_interview_questions` with `jd_id`, `resume_id`, optional `num_questions` (default 10). The server generates technical Level-1 questions with its own AI workflow. |
-   | **Claude-authored** | User wants tailored/custom questions, or wants to review before storing | Author the questions yourself (playbook below), show the user, then store with `add_interview_questions` (`question_type: "interview1"`). |
+   | **Platform (default)** | Every generation request that doesn't explicitly ask otherwise | `generate_interview_questions` with `jd_id`, `resume_id`, optional `num_questions` (default 10). The server generates technical Level-1 questions with its own AI workflow. |
+   | **Claude-authored (explicit request only)** | User explicitly asks YOU to write the questions | Author the questions yourself (playbook below), show the user, then store with `add_interview_questions` (`question_type: "interview1"`). |
+   | **User-provided** | User supplies their own questions to save | Normalize them into `{ question, key_points }` entries (ask for key points if missing), then store with `add_interview_questions` (`question_type: "interview1"`). |
 
 4. **Platform path is async:** it returns `{ question_id, run_id, status: "processing" }`. Poll
    `get_workflow_status` with `run_id` until `COMPLETED`, then fetch the questions with
    `get_interview_questions` and show them.
 5. **Show the user** the stored set, with key points and the `question_id`.
 
+## Saving when a set already exists
+
+Applies whenever YOU are about to store questions with `add_interview_questions` (user-provided
+or explicitly Claude-authored) and `get_interview_questions` shows an existing set. Never decide
+silently — show the latest existing set and ask the user:
+
+- **Replace** — store only the new questions as a new set. It becomes the newest set, which is
+  what readers (the list commands, `interview-oncall`) use. The API has no delete, so older sets
+  remain in history; mention this.
+- **Merge** — combine the latest existing set's questions with the new ones (drop exact
+  duplicates), and store the combined list as one new set.
+
+If no set exists yet, just save — no prompt needed.
+
 ## Claude-authored playbook
+
+Use ONLY when the user has explicitly asked you to author the questions yourself.
 
 Generate 8–10 questions anchored in THIS candidate's background — never generic. Use `get_job`
 (requirements, responsibilities) and the candidate's `list_resumes` row (evaluation scores,

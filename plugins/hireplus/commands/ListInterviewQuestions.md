@@ -13,8 +13,8 @@ List the stored INTERVIEW (level 1) questions for the candidate given in: $ARGUM
    - If several candidates/jobs match, show the matches and ask the user to pick one.
 2. Call `get_interview_questions` with the resolved `jd_id` and `resume_id`.
 3. Present the result:
-   - No sets → say none exist and offer to generate one (`generate_interview_questions`, or the
-     `generate-interview-questions` skill for custom-authored questions).
+   - No sets → say none exist and offer to generate one with the platform's
+     `generate_interview_questions` (see the `generate-interview-questions` skill).
    - A set with `questions_generated: null` → generation is still running; offer to poll
      `get_workflow_status`.
    - Otherwise render each set (newest first) as a numbered list: the question, then its

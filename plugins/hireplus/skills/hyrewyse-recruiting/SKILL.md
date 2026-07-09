@@ -91,11 +91,14 @@ create_job ──► (per candidate) create_resume ──► add_interview_quest
 2. **Add each candidate.** Read the resume. Extract the candidate fields. Then **evaluate the
    candidate against the JD** — produce the 0–100 scores, `skills_matched` / `key_skills_missing`,
    a `final_recommendation`, and a short `evaluation_summary`. Call `create_resume`. Keep `resume_id`.
-3. **Generate questions.** Two ways: let the platform generate them (`generate_screening_questions`
-   / `generate_interview_questions`, async — poll `get_workflow_status`), or author them yourself
-   and store with `add_interview_questions` (`question_type` `"screening"` or `"interview1"`).
-   Before writing, check `get_screening_questions` / `get_interview_questions` so you don't
-   duplicate an existing set. The dedicated `generate-screening-questions` and
+3. **Generate questions.** Default to the platform's own generation (`generate_screening_questions`
+   / `generate_interview_questions`, async — poll `get_workflow_status`). Author questions
+   yourself and store with `add_interview_questions` (`question_type` `"screening"` or
+   `"interview1"`) ONLY when the user explicitly asks you to write them; also use
+   `add_interview_questions` to save questions the user provides. Before storing a set yourself,
+   check `get_screening_questions` / `get_interview_questions` — if a set already exists, ask the
+   user whether to **replace** it (store the new set; newest wins) or **merge** (combine with the
+   latest set, dedupe, store as one new set). The dedicated `generate-screening-questions` and
    `generate-interview-questions` skills carry the full playbooks; `interview-oncall` uses the
    stored questions as a live-interview rubric.
 
