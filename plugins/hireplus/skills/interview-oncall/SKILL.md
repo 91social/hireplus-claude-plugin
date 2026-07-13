@@ -4,7 +4,7 @@ description: Silent interview co-pilot for Hyrewyse. Use when the user says "onc
 license: MIT
 metadata:
   author: 91social
-  version: "1.0.0"
+  version: "1.2.1"
 ---
 
 # Interview OnCall (silent listener → analyst)

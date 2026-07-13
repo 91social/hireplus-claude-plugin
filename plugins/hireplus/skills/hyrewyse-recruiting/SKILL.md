@@ -4,7 +4,7 @@ description: Drive the Hyrewyse recruitment platform through its MCP server. Use
 license: MIT
 metadata:
   author: 91social
-  version: "1.1.0"
+  version: "1.2.1"
   repository: https://github.com/91social/hyrewyseplatform
 ---
 

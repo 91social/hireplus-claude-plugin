@@ -4,6 +4,9 @@
     "name": "91social",
     "url": "https://github.com/91social"
   },
+  "metadata": {
+    "description": "91social's Claude Code plugin marketplace, offering plugins that connect Claude to 91social products such as the Hyrewyse / HirePlus recruitment platform."
+  },
   "plugins": [
     {
       "name": "hireplus",
